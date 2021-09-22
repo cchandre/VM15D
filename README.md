@@ -6,12 +6,15 @@
 - **GrowthRates.mlx**: [Matlab livescript] computes the growth rates for the linearized equations of motion near a homogeneous equilibrium. It reproduces the figures of the article *Hamiltonian fluid reduction of the 1.5D Vlasov-Maxwell equations* by C. Chandre and B.A. Shadwick
 
 ```bibtex
-@misc{chandre2021hamiltonian,
-      title={Hamiltonian fluid reduction of the 1.5D Vlasov-Maxwell equations}, 
-      author={Cristel Chandre and Bradley A. Shadwick},
-      year={2021},
-      eprint={2105.03194},
-      archivePrefix={arXiv},
-      primaryClass={nlin.CD}
+@article{doi:10.1063/5.0056155,
+      author = {Chandre, C.  and Shadwick, B.A. },
+      title = {Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equations},
+      journal = {Physics of Plasmas},
+      volume = {28},
+      number = {9},
+      pages = {092114},
+      year = {2021},
+      doi = {10.1063/5.0056155},
+      URL = {https://doi.org/10.1063/5.0056155}
 }
 ```
