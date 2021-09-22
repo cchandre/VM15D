@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     79115,       1636]
-NotebookOptionsPosition[     77087,       1593]
-NotebookOutlinePosition[     77480,       1609]
-CellTagsIndexPosition[     77437,       1606]
+NotebookDataLength[     79416,       1644]
+NotebookOptionsPosition[     77388,       1601]
+NotebookOutlinePosition[     77781,       1617]
+CellTagsIndexPosition[     77738,       1614]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -104,9 +104,16 @@ Hamiltonian fluid reduction of the 1.5D Vlasov-Maxwell equations\
 
 Cell[TextData[{
  "based on [C. Chandre, B.A. Shadwick, ",
- StyleBox["Hamiltonian fluid reduction of the 1.5D Vlasov-Maxwell equations",
+ StyleBox["Hamiltonian fluid reduction of the 1.5D Vlasov-Maxwell equations,",
+  
   FontSlant->"Italic"],
- " (2021)]\n"
+ " ",
+ ButtonBox["Physics of Plasmas",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+    URL["https://doi.org/10.1063/5.0056155"], None},
+  ButtonNote->"https://doi.org/10.1063/5.0056155"],
+ " 28, 092114 (2021)]\n"
 }], "Text",
  CellChangeTimes->{{3.753546115869246*^9, 3.7535463066624527`*^9}, {
    3.7535463938212347`*^9, 3.75354641630978*^9}, {3.753546468332477*^9, 
@@ -185,8 +192,9 @@ Cell[TextData[{
    3.828598961888832*^9}, {3.828598992127674*^9, 3.8285990151913652`*^9}, {
    3.828599050387712*^9, 3.828599168233653*^9}, {3.8285992937054157`*^9, 
    3.8285993541755877`*^9}, {3.829192500565709*^9, 3.829192547569335*^9}, {
-   3.829192588673379*^9, 
-   3.829192609319477*^9}},ExpressionUUID->"45049cb9-be61-4b15-a57e-\
+   3.829192588673379*^9, 3.829192609319477*^9}, {3.8413099414194393`*^9, 
+   3.8413099670489597`*^9}, {3.841310007525659*^9, 
+   3.841310007525931*^9}},ExpressionUUID->"45049cb9-be61-4b15-a57e-\
 05ecd587aef1"],
 
 Cell[CellGroupData[{
@@ -1610,31 +1618,31 @@ CellTagsIndex->{}
 Notebook[{
 Cell[CellGroupData[{
 Cell[580, 22, 5782, 80, 98, "Title",ExpressionUUID->"df979f07-c71f-4966-b27b-19072cd565d9"],
-Cell[6365, 104, 5980, 85, 58, "Text",ExpressionUUID->"45049cb9-be61-4b15-a57e-05ecd587aef1"],
+Cell[6365, 104, 6281, 93, 58, "Text",ExpressionUUID->"45049cb9-be61-4b15-a57e-05ecd587aef1"],
 Cell[CellGroupData[{
-Cell[12370, 193, 5897, 82, 53, "Subtitle",ExpressionUUID->"976dbdcd-3506-4f9a-b7ed-7278a2731541"],
-Cell[18270, 277, 24316, 652, 485, "Input",ExpressionUUID->"4a861d29-6513-41f3-bf2b-f7a3db9eacbd"]
+Cell[12671, 201, 5897, 82, 53, "Subtitle",ExpressionUUID->"976dbdcd-3506-4f9a-b7ed-7278a2731541"],
+Cell[18571, 285, 24316, 652, 485, "Input",ExpressionUUID->"4a861d29-6513-41f3-bf2b-f7a3db9eacbd"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[42623, 934, 5918, 83, 85, "Subtitle",ExpressionUUID->"779bda29-8bb2-43ac-b308-fea2919d639d"],
+Cell[42924, 942, 5918, 83, 85, "Subtitle",ExpressionUUID->"779bda29-8bb2-43ac-b308-fea2919d639d"],
 Cell[CellGroupData[{
-Cell[48566, 1021, 9071, 171, 115, "Input",ExpressionUUID->"87596ae0-b859-40fe-9860-82b003cd3528"],
+Cell[48867, 1029, 9071, 171, 115, "Input",ExpressionUUID->"87596ae0-b859-40fe-9860-82b003cd3528"],
 Cell[CellGroupData[{
-Cell[57662, 1196, 345, 8, 24, "Print",ExpressionUUID->"62c5a32f-7f16-4c72-bf77-cbf6c46a789e"],
-Cell[58010, 1206, 347, 8, 24, "Print",ExpressionUUID->"e4ff08d6-20a3-4b7a-a146-c4166c3a3b6d"],
-Cell[58360, 1216, 347, 8, 24, "Print",ExpressionUUID->"8fb25a59-2b30-4e90-8959-36a13b707967"],
-Cell[58710, 1226, 346, 8, 24, "Print",ExpressionUUID->"8d06ed01-49f3-4291-a670-a836c5872580"],
-Cell[59059, 1236, 347, 8, 24, "Print",ExpressionUUID->"976a1639-cc99-4544-925f-0fd4ee820042"],
-Cell[59409, 1246, 348, 8, 24, "Print",ExpressionUUID->"307cebd4-9202-450d-9a92-cc0cc4ed6fde"]
+Cell[57963, 1204, 345, 8, 34, "Print",ExpressionUUID->"62c5a32f-7f16-4c72-bf77-cbf6c46a789e"],
+Cell[58311, 1214, 347, 8, 24, "Print",ExpressionUUID->"e4ff08d6-20a3-4b7a-a146-c4166c3a3b6d"],
+Cell[58661, 1224, 347, 8, 24, "Print",ExpressionUUID->"8fb25a59-2b30-4e90-8959-36a13b707967"],
+Cell[59011, 1234, 346, 8, 24, "Print",ExpressionUUID->"8d06ed01-49f3-4291-a670-a836c5872580"],
+Cell[59360, 1244, 347, 8, 24, "Print",ExpressionUUID->"976a1639-cc99-4544-925f-0fd4ee820042"],
+Cell[59710, 1254, 348, 8, 24, "Print",ExpressionUUID->"307cebd4-9202-450d-9a92-cc0cc4ed6fde"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[59818, 1261, 5913, 84, 85, "Subtitle",ExpressionUUID->"faa8d8c2-ed86-4a9c-bcbf-a389fae4fb83"],
+Cell[60119, 1269, 5913, 84, 85, "Subtitle",ExpressionUUID->"faa8d8c2-ed86-4a9c-bcbf-a389fae4fb83"],
 Cell[CellGroupData[{
-Cell[65756, 1349, 10333, 219, 119, "Input",ExpressionUUID->"b6587a21-3206-492e-8d13-52bc2cedbb76"],
-Cell[76092, 1570, 477, 8, 34, "Output",ExpressionUUID->"858aae6e-4cd4-4c15-b3ce-9c7a691c3668"],
-Cell[76572, 1580, 475, 8, 34, "Output",ExpressionUUID->"409dfc66-a567-4909-ad87-74b40df8bece"]
+Cell[66057, 1357, 10333, 219, 119, "Input",ExpressionUUID->"b6587a21-3206-492e-8d13-52bc2cedbb76"],
+Cell[76393, 1578, 477, 8, 34, "Output",ExpressionUUID->"858aae6e-4cd4-4c15-b3ce-9c7a691c3668"],
+Cell[76873, 1588, 475, 8, 34, "Output",ExpressionUUID->"409dfc66-a567-4909-ad87-74b40df8bece"]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
