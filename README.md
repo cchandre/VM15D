@@ -7,14 +7,14 @@
 
 ```bibtex
 @article{chandre2021,
-      author = {Chandre, C.  and Shadwick, B.A. },
-      title = {Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equations},
-      journal = {Physics of Plasmas},
-      volume = {28},
-      number = {9},
-      pages = {092114},
-      year = {2021},
-      doi = {10.1063/5.0056155},
-      URL = {https://doi.org/10.1063/5.0056155}
+         title = {Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equations},
+         author = {Chandre, C.  and Shadwick, B.A. },
+         journal = {Physics of Plasmas},
+         volume = {28},
+         number = {9},
+         pages = {092114},
+         year = {2021},
+         doi = {10.1063/5.0056155},
+         URL = {https://doi.org/10.1063/5.0056155}
 }
 ```
