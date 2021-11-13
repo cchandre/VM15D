@@ -57,7 +57,7 @@ class VM15D:
 		self.kvx = xp.pi / self.Lvx * rfftfreq(self.Nvx, d=1/self.Nvx)
 		self.kvz = xp.pi / self.Lvz * rfftfreq(self.Nvz, d=1/self.Nvz)
 		self.tail_indx = [(xp.s_[3*self.Nz//8:], xp.s_[:], xp.s_[:],), (xp.s_[:], xp.s_[3*self.Nvx//8:], xp.s_[:],), (xp.s_[:], xp.s_[:], xp.s_[3*self.Nvz//8:])]
-		f_ = self.f_init(self.z_[:, xp.newaxis, xp.newaxis], self.vx_[xp.newaxis, :, xp.newaxis], self.vz_[xp.newaxis, xp.newaxis, :])
+		f_ = self.f_init(self.z_[:, None, None], self.vx_[None, :, None], self.vz_[None, None, :])
 		self.f = f_[:-1, :-1, :-1]
 		self.f0 = simpson(simpson(simpson(f_, self.vz_, axis=2), self.vx_, axis=1), self.z_)
 		self.Ez = lambda rho: irfft(div * self.rfft_(rho))
@@ -65,20 +65,22 @@ class VM15D:
 			self.integr2_coeff = [0.5, 1, 0.5]
 			self.integr2_type = [1, 2, 1]
 			self.integr5_coeff = [0.25, 0.5, 0.25, 0.25, 0.5, 0.25, 1, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25]
-			self.integr5_type = [1, 2, 1, 3, 4, 3, 5, 3, 4, 4, 1, 2, 1]
+			self.integr5_type = [1, 2, 1, 3, 4, 3, 5, 3, 4, 3, 1, 2, 1]
 
 	def Hpx(self, f, Ex, Ez, By, dt):
 		ft = irfft(xp.exp(-1j * self.kvz[None, None, :] * self.vx[None, :, None] * By[:, None, None] * dt) * self.rfft_(f, axis=2), axis=2)
-		return ft, Ex, Ez, By
+		f_ = xp.pad(f, ((0, 1),), mode='wrap')
+		Etx = Ex - simpson(simpson(self.vx_[None, :, None] * f_, self.vz_, axis=2), self.vx_, axis=1)[:-1] * dt
+		return ft, Etx, Ez, By
 
 	def Hpz(self, f, Ex, Ez, By, dt):
-		ft, Etz = f.copy(), Ez.copy()
+		ft = f.copy()
 		for coeff, type in zip(self.integr2_coeff, self.integr2_type):
 			if type == 1:
 				ft = irfft(xp.exp(-1j * self.vz[None, None, :] * self.kz[:, None, None] * coeff * dt) * self.rfft_(ft, axis=0), axis=0)
-				Etz = self.Ez(simpson(simpson(xp.pad(ft, ((0, 0), (0, 1), (0, 1)), mode='wrap'), self.vz_, axis=2), self.vx_, axis=1))
 			elif type == 2:
 				ft = irfft(xp.exp(1j * self.vz[None, None, :] * By[:, None, None] * self.kvx[None, :, None] * coeff * dt) * self.rfft_(ft, axis=1), axis=1)
+		Etz = self.Ez(simpson(simpson(xp.pad(ft, ((0, 1),), mode='wrap'), self.vz_, axis=2), self.vx_, axis=1)[:-1])
 		return ft, Ex, Etz, By
 
 	def Hcz(self, f, Ex, Ez, By, dt):
