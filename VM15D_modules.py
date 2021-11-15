@@ -62,11 +62,11 @@ def integrate(case):
 		fig_d.canvas.manager.set_window_title(r'Distribution function f(z,vx,vz,t)')
 		ax_d = plt.gca()
 		ax_d.set_title('$\omega_p t = 0 $', loc='right', pad=-10)
-		im = plt.imshow(f[:, case.Nvx//2, :].transpose(), interpolation='gaussian', origin='lower', aspect='auto', extent=(-case.Lz, case.Lz, -case.Lvz, case.Lvz), vmin=xp.min(f), vmax=xp.max(f))
+		im = plt.imshow(simpson(f_, case.vx_, axis=1)[:-1, :-1].transpose(), interpolation='gaussian', origin='lower', aspect='auto', extent=(-case.Lz, case.Lz, -case.Lvz, case.Lvz), vmin=xp.min(f), vmax=xp.max(f))
 		plt.gca().set_ylabel('$v_z$')
 		plt.gca().set_xlabel('$z$')
 		plt.colorbar()
-		fig_f = plt.figure(figsize=(8, 10))
+		fig_f = plt.figure(figsize=(6, 8))
 		fig_f.canvas.manager.set_window_title('1.5D Vlasov-Maxwell simulation')
 		axs_f = fig_f.add_gridspec(3, hspace=0.2).subplots(sharex=True)
 		axs_f[0].set_title('$\omega_p t = 0 $', loc='right', pad=20)
@@ -85,7 +85,7 @@ def integrate(case):
 	TimeStep = 1 / case.nsteps
 	t_eval = xp.linspace(1/case.nsteps, 1, case.nsteps)
 	start = time.time()
-	for _ in trange(xp.int32(case.Tf)):
+	for _ in trange(xp.int32(case.Tf), disable=not case.tqdm_display):
 		if 'Compute' in case.Kinetic:
 			for t in range(case.nsteps):
 				for coeff, type in zip(case.integr5_coeff, case.integr5_type):
@@ -103,10 +103,11 @@ def integrate(case):
 				f_ = xp.pad(f, ((0, 1),), mode='wrap')
 				f_ *= case.f0 / simpson(simpson(simpson(f_, case.vz_, axis=2), case.vx_, axis=1), case.z_)
 				f = f_[:-1, :-1, :-1]
+			print('\033[90m        H = {:.6e}    H0 = {:.6e}'.format(case.energy_kinetic(f, Ex, Ez, By), H0))
 			if 'Plot' in case.Kinetic:
 				ax_d.set_title('$\omega_p t = {{{}}}$'.format(_ + 1), loc='right', pad=-10)
 				axs_f[0].set_title('$\omega_p t = {{{}}}$'.format(_ + 1), loc='right', pad=20)
-				im.set_data(f[:, case.Nvx//2, :].transpose())
+				im.set_data(simpson(f_, case.vx_, axis=1)[:-1, :-1].transpose())
 				line_Ex.set_ydata(Ex)
 				line_Ez.set_ydata(Ez)
 				line_By.set_ydata(By)
