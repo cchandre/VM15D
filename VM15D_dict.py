@@ -5,9 +5,12 @@
 import numpy as xp
 
 Tf = 80
+alpha = 1
+lam = 2
 
 integrator_kinetic = 'position-Verlet'
 nsteps = 50
+integrator_fluid = 'DOP853'
 precision = 1e-11
 
 n_casimirs = 3
@@ -27,6 +30,7 @@ f_init = lambda z, vx, vz: (1 - A * xp.cos(k * z)) * xp.exp(-vx**2 / (2 * Tx)) /
 
 ## 'Compute', 'Plot' and/or 'Save'
 Kinetic = ['Compute', 'Plot']
+Fluid = ['Compute', 'Plot']
 
 darkmode = True
 tqdm_display = False
@@ -34,10 +38,12 @@ tqdm_display = False
 ###################################################################################################
 ##                               DO NOT EDIT BELOW                                               ##
 ###################################################################################################
-dict = {'Tf': Tf}
-dict.update({
+dict = {'Tf': Tf,
+		'alpha': alpha,
+		'lam': lam,
         'integrator_kinetic': integrator_kinetic,
         'nsteps': nsteps,
+		'integrator_fluid': integrator_kinetic,
         'precision': precision,
         'n_casimirs': n_casimirs,
         'Lz': Lz,
@@ -48,6 +54,7 @@ dict.update({
 		'Nvz': Nvz,
 		'f_init': f_init,
 		'Kinetic': Kinetic,
+		'Fluid': Fluid,
         'darkmode': darkmode,
-		'tqdm_display': tqdm_display})
+		'tqdm_display': tqdm_display}
 ###################################################################################################
