@@ -26,7 +26,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 import numpy as xp
-from scipy.integrate import simpson
+from scipy.integrate import solve_ivp, simpson
 from tqdm import trange
 from scipy.io import savemat
 import time
@@ -39,54 +39,42 @@ def integrate(case):
 	timestr = time.strftime("%Y%m%d_%H%M")
 	f = case.f.copy()
 	Ex = xp.zeros(case.Nz, dtype=xp.float64)
-	f_ = xp.pad(f, ((0, 1),), mode='wrap')
-	Ez = case.Ez(simpson(simpson(f_, case.vz_, axis=2), case.vx_, axis=1)[:-1])
 	By = xp.zeros(case.Nz, dtype=xp.float64)
-	H0 = case.energy_kinetic(f, Ex, Ez, By)
-	C0 = case.casimirs_kinetic(f, case.n_casimirs)
-	plt.ion()
-	if case.darkmode:
-		cs = ['k', 'w']
-	else:
-		cs = ['w', 'k']
-	plt.rc('figure', facecolor=cs[0], titlesize=30)
-	plt.rc('text', usetex=True, color=cs[1])
-	plt.rc('font', family='sans-serif', size=20)
-	plt.rc('axes', facecolor=cs[0], edgecolor=cs[1], labelsize=26, labelcolor=cs[1], titlecolor=cs[1])
-	plt.rc('xtick', color=cs[1], labelcolor=cs[1])
-	plt.rc('ytick', color=cs[1], labelcolor=cs[1])
-	plt.rc('lines', linewidth=3)
-	plt.rc('image', cmap='bwr')
+	f_ = xp.pad(f, ((0, 1),), mode='wrap')
+	state_f = xp.hstack((case.compute_moments(f), Ex, By))
+	rho = state_f[:case.Nz]
+	Ez = case.Ez(rho)
+	H0_k = case.energy_kinetic(f, Ex, Ez, By)
+	C0_k = case.casimirs_kinetic(f, case.n_casimirs)
+	H0_f = case.energy_fluid(state_f)
+	C0_f = case.casimirs_fluid(state_f, case.n_casimirs)
 	if 'Plot' in case.Kinetic:
+		dict_kinetic = {'\\rho': rho,
+						'E_z': Ez,
+						'E_x': Ex,
+						'B_y': By}
+		axs_kinetic, line_kinetic = display_axes(case, dict_kinetic, simul='kinetic')
 		fig_d = plt.figure(figsize=(7, 6.5))
 		fig_d.canvas.manager.set_window_title(r'Distribution function f(z,vx,vz,t)')
 		ax_d = plt.gca()
 		ax_d.set_title('$\omega_p t = 0 $', loc='right', pad=-10)
 		im = plt.imshow(simpson(f_, case.vx_, axis=1)[:-1, :-1].transpose(), interpolation='gaussian', origin='lower', aspect='auto', extent=(-case.Lz, case.Lz, -case.Lvz, case.Lvz), vmin=xp.min(f), vmax=xp.max(f))
-		plt.gca().set_ylabel('$v_z$')
 		plt.gca().set_xlabel('$z$')
+		plt.gca().set_ylabel('$v_z$')
 		plt.colorbar()
-		fig_f = plt.figure(figsize=(6, 8))
-		fig_f.canvas.manager.set_window_title('1.5D Vlasov-Maxwell simulation')
-		axs_f = fig_f.add_gridspec(3, hspace=0.2).subplots(sharex=True)
-		axs_f[0].set_title('$\omega_p t = 0 $', loc='right', pad=20)
-		axs_f[0].plot(case.z, Ez, 'r--', linewidth=1, label=r'$E_z(0)$')
-		line_Ez, = axs_f[0].plot(case.z, Ez, 'r', label=r'$E_z(t)$')
-		axs_f[1].plot(case.z, Ex, 'c--', linewidth=1, label=r'$E_x(0)$')
-		line_Ex, = axs_f[1].plot(case.z, Ex, 'c', label=r'$E_x(t)$')
-		axs_f[2].plot(case.z, By, cs[1], linestyle='--', linewidth=1, label=r'$B_y(0)$')
-		line_By, = axs_f[2].plot(case.z, By, cs[1], label=r'$B_y(t)$')
-		for ax in axs_f:
-			ax.set_xlim((-case.Lz, case.Lz))
-			ax.legend(loc='upper right', labelcolor='linecolor')
-		axs_f[-1].set_xlabel('$z$')
-		plt.draw()
-		plt.pause(1e-4)
+	if 'Plot' in case.Fluid:
+		dict_fluid = {'\\rho': rho,
+						'E_z': Ez,
+						'E_x': Ex,
+						'B_y': By}
+		axs_fluid, line_fluid = display_axes(case, dict_fluid, simul='fluid')
 	TimeStep = 1 / case.nsteps
 	t_eval = xp.linspace(1/case.nsteps, 1, case.nsteps)
 	start = time.time()
+	stop_kinetic = False
+	stop_fluid = False
 	for _ in trange(xp.int32(case.Tf), disable=not case.tqdm_display):
-		if 'Compute' in case.Kinetic:
+		if 'Compute' in case.Kinetic and not stop_kinetic:
 			for t in range(case.nsteps):
 				for coeff, type in zip(case.integr5_coeff, case.integr5_type):
 					if type == 1:
@@ -103,28 +91,89 @@ def integrate(case):
 				f_ = xp.pad(f, ((0, 1),), mode='wrap')
 				f_ *= case.f0 / simpson(simpson(simpson(f_, case.vz_, axis=2), case.vx_, axis=1), case.z_)
 				f = f_[:-1, :-1, :-1]
-			print('\033[90m        H = {:.6e}    H0 = {:.6e}'.format(case.energy_kinetic(f, Ex, Ez, By), H0))
+			H = case.energy_kinetic(f, Ex, Ez, By)
+			if xp.abs(H-H0_k)>=1e-2:
+				print('\033[33m        Warning: kinetic simulation stopped before the end \033[00m')
+				print('\033[33m        Hf = {:.6e}    H0 = {:.6e}'.format(H, H0_k))
+				stop_kinetic = True
 			if 'Plot' in case.Kinetic:
 				ax_d.set_title('$\omega_p t = {{{}}}$'.format(_ + 1), loc='right', pad=-10)
-				axs_f[0].set_title('$\omega_p t = {{{}}}$'.format(_ + 1), loc='right', pad=20)
 				im.set_data(simpson(f_, case.vx_, axis=1)[:-1, :-1].transpose())
-				line_Ex.set_ydata(Ex)
-				line_Ez.set_ydata(Ez)
-				line_By.set_ydata(By)
-				for ax in axs_f:
-					ax.relim()
-					ax.autoscale()
-					ax.set_xlim((-case.Lz, case.Lz))
-				plt.draw()
-				plt.pause(1e-4)
+				line_kinetic[0].set_ydata(simpson(simpson(f_, case.vz_, axis=2), case.vx_, axis=1)[:-1])
+				line_kinetic[1].set_ydata(Ez)
+				line_kinetic[2].set_ydata(Ex)
+				line_kinetic[3].set_ydata(By)
+				update_axes(case, axs_kinetic, _ + 1)
+		if 'Compute' in case.Fluid and not stop_fluid:
+			sol = solve_ivp(case.eqn_3f, (0, 1), state_f, t_eval=t_eval, method=case.integrator_fluid, atol=case.precision, rtol=case.precision)
+			if sol.status!=0:
+				print('\033[33m        Warning: fluid simulation stopped before the end \033[00m')
+				stop_fluid = True
+			else:
+				state_f = sol.y[:, -1]
+				rho, Px, Pz, S20, S11, S02, Ex, By = xp.split(state_f, 8)
+				if xp.min(S20) <= case.precision or xp.min(S02) <= case.precision:
+					print('\033[31m        Error: fluid simulation with S2<0 \033[00m')
+					stop_fluid = True
+			if 'Plot' in case.Fluid:
+				line_fluid[0].set_ydata(rho)
+				line_fluid[1].set_ydata(case.Ez(rho))
+				line_fluid[2].set_ydata(Ex)
+				line_fluid[3].set_ydata(By)
+				update_axes(case, axs_fluid, _ + 1)
 	print('\033[90m        Computation finished in {} seconds \033[00m'.format(int(time.time() - start)))
 	if 'Compute' in case.Kinetic:
 		H = case.energy_kinetic(f, Ex, Ez, By)
-		print('\033[90m        Error in energy = {:.2e}'.format(xp.abs(H - H0)))
+		print('\033[90m        Error in energy = {:.2e}'.format(xp.abs(H - H0_k)))
 		for indx, C in enumerate(case.casimirs_kinetic(f, case.n_casimirs)):
-			print('\033[90m        Error in Casimir C{:d} = {:.2e}'.format(indx + 1, xp.abs(C - C0[indx])))
+			print('\033[90m        Error in Casimir C{:d} = {:.2e}'.format(indx + 1, xp.abs(C - C0_k[indx])))
+	if 'Compute' in case.Fluid:
+		H = case.energy_fluid(state_f)
+		print('\033[90m        Error in energy (fluid) = {:.2e}'.format(xp.abs(H - H0_f)))
+		for indx, C in enumerate(case.casimirs_fluid(state_f, case.n_casimirs)):
+			print('\033[90m        Error in Casimir C{:d} (fluid) = {:.2e}'.format(indx + 1, xp.abs(C - C0_f[indx])))
 	plt.ioff()
 	plt.show()
+
+def display_axes(case, dict, simul=None):
+	plt.ion()
+	if case.darkmode:
+		cs = ['k', 'w', 'c', 'm', 'r']
+	else:
+		cs = ['w', 'k', 'c', 'm', 'r']
+	plt.rc('figure', facecolor=cs[0], titlesize=30)
+	plt.rc('text', usetex=True, color=cs[1])
+	plt.rc('font', family='sans-serif', size=20)
+	plt.rc('axes', facecolor=cs[0], edgecolor=cs[1], labelsize=26, labelcolor=cs[1], titlecolor=cs[1])
+	plt.rc('xtick', color=cs[1], labelcolor=cs[1])
+	plt.rc('ytick', color=cs[1], labelcolor=cs[1])
+	plt.rc('lines', linewidth=3)
+	plt.rc('image', cmap='bwr')
+	fig = plt.figure(figsize=(8, 8))
+	fig.canvas.manager.set_window_title((simul + ' simulation').capitalize())
+	axs = fig.add_gridspec(len(dict), hspace=0.2).subplots(sharex=True)
+	line = []
+	for m, (key, value) in enumerate(dict.items()):
+		axs[m].plot(case.z, value, cs[m+1], linestyle='--', linewidth=1, label=r'$' + str(key) + '(0)$')
+		line_temp, = axs[m].plot(case.z, value, cs[m+1], label=r'$' + str(key) + '(t)$')
+		line.append(line_temp)
+	axs[0].set_title('$\omega_p t = 0 $', loc='right', pad=20)
+	for ax in axs:
+		ax.set_xlim((-case.Lz, case.Lz))
+		ax.legend(loc='upper right', labelcolor='linecolor')
+	axs[-1].set_xlabel('$z$')
+	plt.draw()
+	plt.pause(1e-4)
+	return axs, line
+
+def update_axes(case, axs, t):
+	axs[0].set_title('$\omega_p t = {{{}}}$'.format(t), loc='right', pad=20)
+	for ax in axs:
+		ax.relim()
+		ax.autoscale()
+		ax.set_xlim((-case.Lz, case.Lz))
+	plt.draw()
+	plt.pause(1e-4)
 
 def save_data(state, data, timestr, case, model=[]):
 	mdic = case.DictParams.copy()

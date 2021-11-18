@@ -4,7 +4,7 @@
 
 import numpy as xp
 
-Tf = 80
+Tf = 30
 alpha = 1
 lam = 2
 
@@ -18,9 +18,9 @@ n_casimirs = 3
 Lz = 2 * xp.pi
 Lvx = 6
 Lvz = 6
-Nz = 2**8
-Nvx = 2**8
-Nvz = 2**8
+Nz = 2**7
+Nvx = 2**7
+Nvz = 2**7
 
 A = 1e-4
 k = 0.5
@@ -43,7 +43,7 @@ dict = {'Tf': Tf,
 		'lam': lam,
         'integrator_kinetic': integrator_kinetic,
         'nsteps': nsteps,
-		'integrator_fluid': integrator_kinetic,
+		'integrator_fluid': integrator_fluid,
         'precision': precision,
         'n_casimirs': n_casimirs,
         'Lz': Lz,

@@ -96,17 +96,17 @@ class VM15D:
 		Etx = Ex - irfft(1j * self.kz * self.rfft_(By)) * dt
 		return f, Etx, Ez, By
 
-	def closure(self, f, By):
-		rho, Px, Pz, S20, S11, S02 = xp.split(f, 6)
-		Pix = Px + irfft(self.div * self.rfft_(By))
-		S21 = S11 * (self.alpha - Pix) - S20 * S11 / (self.alpha - Pix)
-		S12 = S02 * (self.alpha - Pix) - S11**2 / (self.alpha - Pix)
-		S03 = S11 / S20 * (3 * S02 - 2 * S11**2 / S20) * (self.alpha - Pix) - S11**3 / S20 / (self.alpha - Pix) + self.lam * (S02 - S11**2 / S20)**(4/3)
+	def closure(self, f):
+		rho, Px, Pz, S20, S11, S02, Ex, By = xp.split(f, 8)
+		Pix = Px + irfft(self.div * self.rfft_(By)) - self.alpha
+		S21 = - S11 * Pix + S20 * S11 / Pix
+		S12 = - S02 * Pix + S11**2 / Pix
+		S03 = - S11 / S20 * (3 * S02 - 2 * S11**2 / S20) * Pix + S11**3 / S20 / Pix + self.lam * (S02 - S11**2 / S20)**(4/3)
 		return S21, S12, S03
 
-	def eqn_3f(self, t, f, Ex, By):
-		rho, Px, Pz, S20, S11, S02 = xp.split(f, 6)
-		S21, S12, S03 = self.closure(f, By)
+	def eqn_3f(self, t, f):
+		rho, Px, Pz, S20, S11, S02, Ex, By = xp.split(f, 8)
+		S21, S12, S03 = self.closure(f)
 		Ez = self.Ez(rho)
 		rho_dot = - irfft(1j * self.kz * self.rfft_(rho * Pz))
 		Px_dot = - Pz * irfft(1j * self.kz * self.rfft_(Px)) + Ex - Pz * By - irfft(1j * self.kz * self.rfft_(rho**2 * S11)) / rho
@@ -114,10 +114,11 @@ class VM15D:
 		S20_dot = - Pz * irfft(1j * self.kz * self.rfft_(S20)) - 2 * rho * S11 * (By + irfft(1j * self.kz * self.rfft_(Px))) - irfft(1j * self.kz * self.rfft_(rho**2 * S21)) / rho
 		S11_dot = - Pz * irfft(1j * self.kz * self.rfft_(S11)) + By * S20 / rho - rho * S02 * (By + irfft(1j * self.kz * self.rfft_(Px))) - irfft(1j * self.kz * self.rfft_(rho**3 * S12)) / rho**2
 		S02_dot = - Pz * irfft(1j * self.kz * self.rfft_(S02)) + 2 * By * S11 / rho - irfft(1j * self.kz * self.rfft_(rho**4 * S03)) / rho**3
-		Ex_dot = -irfft(1j * self.kz * self.rfft_(By))) - rho * Px
-		By_dot = -irfft(1j * self.kz * self.rfft_(Ex)))
+		Ex_dot = -irfft(1j * self.kz * self.rfft_(By)) - rho * Px
+		By_dot = -irfft(1j * self.kz * self.rfft_(Ex))
+		return xp.hstack((rho_dot, Px_dot, Pz_dot, S20_dot, S11_dot, S02_dot, Ex_dot, By_dot))
 
-	def compute_moments(self, f, n):
+	def compute_moments(self, f):
 		f_ = xp.pad(f, ((0, 1),), mode='wrap')
 		rho = simpson(simpson(f_, self.vz_, axis=2), self.vx_, axis=1)
 		Px = simpson(simpson(self.vx_[None, :, None] * f_, self.vz_, axis=2), self.vx_, axis=1) / rho
@@ -125,7 +126,7 @@ class VM15D:
 		S20 = simpson(simpson((self.vx_ - Px)[None, :, None]**2 * f_, self.vz_, axis=2), self.vx_, axis=1) / rho
 		S11 = simpson(simpson((self.vx_ - Px)[None, :, None] * (self.vz_ - Pz)[None, None, :] * f_, self.vz_, axis=2), self.vx_, axis=1) / rho**2
 		S02 = simpson(simpson((self.vz_ - Pz)[None, None, :]**2 * f_, self.vz_, axis=2), self.vx_, axis=1) / rho**3
-		return rho[:-1], Px[:-1], Pz[:-1], S20[:-1], S11[:-1], S02[:-1]
+		return xp.hstack((rho[:-1], Px[:-1], Pz[:-1], S20[:-1], S11[:-1], S02[:-1]))
 
 	def rfft_(self, f, axis=0):
 		fft_f = rfft(f, axis=axis)
@@ -133,12 +134,10 @@ class VM15D:
 		fft_f[self.tail_indx[axis][:f.ndim]] = 0
 		return fft_f
 
-	def energy_fluid(self, f, Ex, Ez, By):
-		rho, Px, Pz, S20, S11, S02 = [xp.pad(_, (0, 1), mode='wrap') for _ in xp.split(f, 6)]
-		Ex_ = xp.pad(Ex, (0, 1), mode='wrap')
-		Ez_ = xp.pad(Ez, (0, 1), mode='wrap')
-		By_ = xp.pad(By, (0, 1), mode='wrap')
-		return simpson(rho * (Px**2 + Pz**2) + rho * S20 + rho**3 * S02 + Ex_**2 + Ez_**2 + By_**2, self.z_) / 2
+	def energy_fluid(self, f):
+		rho, Px, Pz, S20, S11, S02, Ex, By = [xp.pad(_, (0, 1), mode='wrap') for _ in xp.split(f, 8)]
+		Ez = xp.pad(self.Ez(rho), (0, 1), mode='wrap')
+		return simpson(rho * (Px**2 + Pz**2) + rho * S20 + rho**3 * S02 + Ex**2 + Ez**2 + By**2, self.z_) / 2
 
 	def energy_kinetic(self, f, Ex, Ez, By):
 		f_ = xp.pad(f, ((0, 1),), mode='wrap')
@@ -150,6 +149,13 @@ class VM15D:
 	def casimirs_kinetic(self, f, n):
 		f_ = xp.pad(f, ((0, 1),), mode='wrap')
 		return [simpson(simpson(simpson(f_**m, self.vz_, axis=2), self.vx_, axis=1), self.z_) for m in range(1, n+1)]
+
+	def casimirs_fluid(self, f, n):
+		rho, Px, Pz, S20, S11, S02, Ex, By = [xp.pad(_, (0, 1), mode='wrap') for _ in xp.split(f, 8)]
+		Pix = xp.pad(Px[:-1] + irfft(self.div * self.rfft_(By[:-1])) - self.alpha, (0, 1), mode='wrap')
+		Cl = simpson((S02 - S11**2 / S20)**(1/3), self.z_)
+		Ct = [simpson((Pix**2 + S20) * (Pix / (Pix**2 + S20))**m, self.z_) for m in range(n-1)]
+		return xp.hstack((Cl, Ct))
 
 if __name__ == "__main__":
 	main()
