@@ -4,7 +4,7 @@
 
 import numpy as xp
 
-Tf = 100
+Tf = 50
 alpha = 2
 lam = 2
 
@@ -13,12 +13,12 @@ nsteps = 20
 integrator_fluid = 'DOP853'
 precision = 1e-11
 
-n_casimirs = 6
+n_casimirs = 3
 
 Lz = 2 * xp.pi
-Lvx = 6
-Lvz = 6
-Nz = 2**9
+Lvx = 1
+Lvz = 3
+Nz = 2**10
 Nvx = 2**8
 Nvz = 2**8
 
