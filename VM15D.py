@@ -123,9 +123,9 @@ class VM15D:
 		rho = simpson(simpson(f_, self.vz_, axis=2), self.vx_, axis=1)
 		Px = simpson(simpson(self.vx_[None, :, None] * f_, self.vz_, axis=2), self.vx_, axis=1) / rho
 		Pz = simpson(simpson(self.vz_[None, None, :] * f_, self.vz_, axis=2), self.vx_, axis=1) / rho
-		S20 = simpson(simpson((self.vx_ - Px)[None, :, None]**2 * f_, self.vz_, axis=2), self.vx_, axis=1) / rho
-		S11 = simpson(simpson((self.vx_ - Px)[None, :, None] * (self.vz_ - Pz)[None, None, :] * f_, self.vz_, axis=2), self.vx_, axis=1) / rho**2
-		S02 = simpson(simpson((self.vz_ - Pz)[None, None, :]**2 * f_, self.vz_, axis=2), self.vx_, axis=1) / rho**3
+		S20 = simpson(simpson((self.vx_[None, :, None] - Px[:, None, None])**2 * f_, self.vz_, axis=2), self.vx_, axis=1) / rho
+		S11 = simpson(simpson((self.vx_[None, :, None] - Px[:, None, None]) * (self.vz_[None, None, :] - Pz[:, None, None]) * f_, self.vz_, axis=2), self.vx_, axis=1) / rho**2
+		S02 = simpson(simpson((self.vz_[None, None, :] - Pz[:, None, None])**2 * f_, self.vz_, axis=2), self.vx_, axis=1) / rho**3
 		return xp.hstack((rho[:-1], Px[:-1], Pz[:-1], S20[:-1], S11[:-1], S02[:-1]))
 
 	def rfft_(self, f, axis=0):
@@ -153,8 +153,8 @@ class VM15D:
 	def casimirs_fluid(self, f, n):
 		rho, Px, Pz, S20, S11, S02, Ex, By = [xp.pad(_, (0, 1), mode='wrap') for _ in xp.split(f, 8)]
 		Pix = xp.pad(Px[:-1] + irfft(self.div * self.rfft_(By[:-1])) - self.alpha, (0, 1), mode='wrap')
-		Cl = simpson((S02 - S11**2 / S20)**(1/3), self.z_)
-		Ct = [simpson((Pix**2 + S20) * (Pix / (Pix**2 + S20))**m, self.z_) for m in range(n-1)]
+		Cl = simpson(rho * (S02 - S11**2 / S20)**(1/3), self.z_)
+		Ct = [simpson(rho * (Pix**2 + S20) * (Pix / (Pix**2 + S20))**m, self.z_) for m in range(n-1)]
 		return xp.hstack((Cl, Ct))
 
 if __name__ == "__main__":

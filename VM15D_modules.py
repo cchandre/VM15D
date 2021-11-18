@@ -92,7 +92,7 @@ def integrate(case):
 				f_ *= case.f0 / simpson(simpson(simpson(f_, case.vz_, axis=2), case.vx_, axis=1), case.z_)
 				f = f_[:-1, :-1, :-1]
 			H = case.energy_kinetic(f, Ex, Ez, By)
-			if xp.abs(H-H0_k)>=1e-2:
+			if xp.abs(H - H0_k) >= 1e-2:
 				print('\033[33m        Warning: kinetic simulation stopped before the end \033[00m')
 				print('\033[33m        Hf = {:.6e}    H0 = {:.6e}'.format(H, H0_k))
 				stop_kinetic = True
@@ -115,6 +115,11 @@ def integrate(case):
 				if xp.min(S20) <= case.precision or xp.min(S02) <= case.precision:
 					print('\033[31m        Error: fluid simulation with S2<0 \033[00m')
 					stop_fluid = True
+				H = case.energy_fluid(state_f)
+				if xp.abs(H - H0_f) >= 1e-2:
+					print('\033[33m        Warning: fluid simulation stopped before the end \033[00m')
+					print('\033[33m        Hf = {:.6e}    H0 = {:.6e}'.format(H, H0_f))
+					stop_fluid = True
 			if 'Plot' in case.Fluid:
 				line_fluid[0].set_ydata(rho)
 				line_fluid[1].set_ydata(case.Ez(rho))
@@ -124,9 +129,9 @@ def integrate(case):
 	print('\033[90m        Computation finished in {} seconds \033[00m'.format(int(time.time() - start)))
 	if 'Compute' in case.Kinetic:
 		H = case.energy_kinetic(f, Ex, Ez, By)
-		print('\033[90m        Error in energy = {:.2e}'.format(xp.abs(H - H0_k)))
+		print('\033[90m        Error in energy (kinetic) = {:.2e}'.format(xp.abs(H - H0_k)))
 		for indx, C in enumerate(case.casimirs_kinetic(f, case.n_casimirs)):
-			print('\033[90m        Error in Casimir C{:d} = {:.2e}'.format(indx + 1, xp.abs(C - C0_k[indx])))
+			print('\033[90m        Error in Casimir C{:d} (kinetic) = {:.2e}'.format(indx + 1, xp.abs(C - C0_k[indx])))
 	if 'Compute' in case.Fluid:
 		H = case.energy_fluid(state_f)
 		print('\033[90m        Error in energy (fluid) = {:.2e}'.format(xp.abs(H - H0_f)))
@@ -154,8 +159,8 @@ def display_axes(case, dict, simul=None):
 	axs = fig.add_gridspec(len(dict), hspace=0.2).subplots(sharex=True)
 	line = []
 	for m, (key, value) in enumerate(dict.items()):
-		axs[m].plot(case.z, value, cs[m+1], linestyle='--', linewidth=1, label=r'$' + str(key) + '(0)$')
-		line_temp, = axs[m].plot(case.z, value, cs[m+1], label=r'$' + str(key) + '(t)$')
+		axs[m].plot(case.z, value, cs[m+1], linestyle='--', linewidth=1, label=r'$' + str(key) + '(z,0)$')
+		line_temp, = axs[m].plot(case.z, value, cs[m+1], label=r'$' + str(key) + '(z,t)$')
 		line.append(line_temp)
 	axs[0].set_title('$\omega_p t = 0 $', loc='right', pad=20)
 	for ax in axs:
