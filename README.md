@@ -36,9 +36,12 @@ ___
 ##  Parameter dictionary for VM15D
 
 - *Tf*: double; duration of the integration (in units of *&omega;<sub>p</sub><sup>-1</sup>*)
+- *alpha*: double; value of the parameter *&alpha;* of the closure
+- *lam*: double; value of the parameter *&lambda;* of the closure
 - *integrator_kinetic*: string ('position-Verlet'); choice of solver for the integration of the Vlasov equation
 - *nsteps*: integer; number of steps in one period of plasma oscillations (1/*&omega;<sub>p</sub><sup>*) for the integration of the Vlasov equation
-- *precision*: double; threshold for the Fourier transforms
+- *integrator_fluid*: string ('RK45', ‘RK23’, ‘DOP853’, ‘BDF’, ‘LSODA’); choice of solver for the integration of the fluid equation
+- *precision*: double; numerical precision of the integrator for the fluid equations; threshold for the Fourier transforms
 - *n_casimirs*: integer; number of Casimir invariants to be monitored 
 
 - *Lz*: double; the *z*-axis is (-*Lz*, *Lz*)
@@ -50,8 +53,9 @@ ___
 - *f_init*: lambda function; initial distribution *f*(*z*,*vx*,*vz*,*t*=0)
 
 - *Kinetic*: list of strings in ['Compute', 'Plot']; list of instructions for the 1.5D Vlasov-Maxwell simulation
+- *Fluid*: list of strings in ['Compute', 'Plot']; list of instructions for the fluid simulation; if contains 'Save', the results are saved in a `.mat` file
 
 - *darkmode*: boolean; if True, plots are done in dark mode
-         
+- *tqdm_display*: boolean; if True, displays a progress bar in the terminal
          
 For more information: <cristel.chandre@cnrs.fr>
