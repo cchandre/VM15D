@@ -4,7 +4,7 @@
 
 import numpy as xp
 
-Tf = 50
+Tf = 40
 alpha = 2
 lam = 2
 
