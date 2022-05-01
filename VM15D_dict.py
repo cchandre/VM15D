@@ -1,5 +1,5 @@
 ###################################################################################################
-##              Dictionary of parameters: https://github.com/cchandre/VM15D                      ##
+##               Dictionary of parameters: https://github.com/cchandre/VM15D                     ##
 ###################################################################################################
 
 import numpy as xp
@@ -36,17 +36,17 @@ darkmode = True
 tqdm_display = False
 
 ###################################################################################################
-##                               DO NOT EDIT BELOW                                               ##
+##                              DO NOT EDIT BELOW                                                ##
 ###################################################################################################
 dict = {'Tf': Tf,
 		'alpha': alpha,
 		'lam': lam,
-        'integrator_kinetic': integrator_kinetic,
-        'nsteps': nsteps,
+		'integrator_kinetic': integrator_kinetic,
+		'nsteps': nsteps,
 		'integrator_fluid': integrator_fluid,
-        'precision': precision,
-        'n_casimirs': n_casimirs,
-        'Lz': Lz,
+		'precision': precision,
+		'n_casimirs': n_casimirs,
+		'Lz': Lz,
 		'Lvx': Lvx,
 		'Lvz': Lvz,
 		'Nz': Nz,
@@ -55,6 +55,6 @@ dict = {'Tf': Tf,
 		'f_init': f_init,
 		'Kinetic': Kinetic,
 		'Fluid': Fluid,
-        'darkmode': darkmode,
+		'darkmode': darkmode,
 		'tqdm_display': tqdm_display}
 ###################################################################################################
