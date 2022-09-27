@@ -60,5 +60,5 @@ Reference: C. Chandre, B.A. Shadwick, *Hamiltonian fluid reduction of the 1.5D V
          URL = {https://doi.org/10.1063/5.0056155}
 }
 ```
-         
+    
 For more information: <cristel.chandre@cnrs.fr>
