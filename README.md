@@ -50,7 +50,7 @@ Reference: C. Chandre, B.A. Shadwick, *Hamiltonian fluid reduction of the 1.5D V
 ```bibtex
 @article{chandre2021,
          title = {Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equations},
-         author = {Chandre, C.  and Shadwick, B.A. },
+         author = {Chandre, C. and Shadwick, B.A.},
          journal = {Physics of Plasmas},
          volume = {28},
          number = {9},
