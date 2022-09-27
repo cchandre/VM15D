@@ -5,20 +5,6 @@
 
 - **GrowthRates.mlx**: [Matlab livescript] computes the growth rates for the linearized equations of motion near a homogeneous equilibrium. It reproduces the figures of the article *Hamiltonian fluid reduction of the 1.5D Vlasov-Maxwell equations* by C. Chandre and B.A. Shadwick
 
-```bibtex
-@article{chandre2021,
-         title = {Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equations},
-         author = {Chandre, C.  and Shadwick, B.A. },
-         journal = {Physics of Plasmas},
-         volume = {28},
-         number = {9},
-         pages = {092114},
-         year = {2021},
-         doi = {10.1063/5.0056155},
-         URL = {https://doi.org/10.1063/5.0056155}
-}
-```
-
 - `VM15D python code`
   - [`VM15D_dict.py`](https://github.com/cchandre/VM15D/blob/main/VM15D_dict.py): to be edited to change the parameters of the VM15D computation (see below for a dictionary of parameters)
 
@@ -57,5 +43,22 @@ ___
 
 - *darkmode*: boolean; if True, plots are done in dark mode
 - *tqdm_display*: boolean; if True, displays a progress bar in the terminal
+
+---
+Reference: C. Chandre, B.A. Shadwick, *Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equationsn*, [Physics of Plasmas](https://doi.org/10.1063/5.0056155) 28, 092114 (2021); [arXiv:2105.03194](https://arxiv.org/abs/2105.03194)
+
+```bibtex
+@article{chandre2021,
+         title = {Hamiltonian fluid reduction of the 1.5D Vlasov–Maxwell equations},
+         author = {Chandre, C.  and Shadwick, B.A. },
+         journal = {Physics of Plasmas},
+         volume = {28},
+         number = {9},
+         pages = {092114},
+         year = {2021},
+         doi = {10.1063/5.0056155},
+         URL = {https://doi.org/10.1063/5.0056155}
+}
+```
          
 For more information: <cristel.chandre@cnrs.fr>
